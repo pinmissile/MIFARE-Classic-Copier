@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name arduino)(type Legacy)(uri ${KIPRJMOD}/arduino.lib)(options "")(descr ""))
+  (lib (name RC522)(type Legacy)(uri ${KIPRJMOD}/RC522.LIB)(options "")(descr ""))
+)

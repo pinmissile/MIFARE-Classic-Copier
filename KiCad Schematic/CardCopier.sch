@@ -1,0 +1,235 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr User 6615 4960
+encoding utf-8
+Sheet 1 1
+Title "Card Copier"
+Date "2021-03-04"
+Rev "1"
+Comp ""
+Comment1 "Author: Ludvig Lindblad"
+Comment2 "https://github.com/pinmissile"
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L RC522:RFID-RC522-MODULE P
+U 1 1 60417918
+P 4600 850
+F 0 "P" H 5228 770 60  0000 L CNN
+F 1 "RC522 MODULE" H 5228 664 60  0000 L CNN
+F 2 "" H 4600 850 60  0000 C CNN
+F 3 "" H 4600 850 60  0000 C CNN
+	1    4600 850 
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 6042DE50
+P 3950 1550
+F 0 "#PWR?" H 3950 1300 50  0001 C CNN
+F 1 "GND" H 3955 1377 50  0000 C CNN
+F 2 "" H 3950 1550 50  0001 C CNN
+F 3 "" H 3950 1550 50  0001 C CNN
+	1    3950 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 60431D42
+P 4800 1500
+F 0 "#PWR?" H 4800 1250 50  0001 C CNN
+F 1 "GND" H 4805 1327 50  0000 C CNN
+F 2 "" H 4800 1500 50  0001 C CNN
+F 3 "" H 4800 1500 50  0001 C CNN
+	1    4800 1500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 6047341A
+P 5100 1500
+F 0 "#PWR?" H 5100 1350 50  0001 C CNN
+F 1 "+3.3V" H 5115 1673 50  0000 C CNN
+F 2 "" H 5100 1500 50  0001 C CNN
+F 3 "" H 5100 1500 50  0001 C CNN
+	1    5100 1500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4800 1400 4800 1500
+Wire Wire Line
+	4950 1400 4950 1800
+Wire Wire Line
+	4500 1400 4500 2100
+Wire Wire Line
+	4350 1400 4350 2000
+$Comp
+L Device:LED D2
+U 1 1 6041AF06
+P 3700 1550
+F 0 "D2" H 3693 1295 50  0000 C CNN
+F 1 "BLUE LED" H 3693 1386 50  0000 C CNN
+F 2 "" H 3700 1550 50  0001 C CNN
+F 3 "~" H 3700 1550 50  0001 C CNN
+	1    3700 1550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3950 1550 3850 1550
+$Comp
+L Device:LED D3
+U 1 1 6041976F
+P 3700 1200
+F 0 "D3" H 3693 945 50  0000 C CNN
+F 1 "YELLOW LED" H 3693 1036 50  0000 C CNN
+F 2 "" H 3700 1200 50  0001 C CNN
+F 3 "~" H 3700 1200 50  0001 C CNN
+	1    3700 1200
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3950 1200 3950 1550
+Wire Wire Line
+	5100 1400 5100 1500
+Connection ~ 3950 1550
+Wire Wire Line
+	3950 1200 3850 1200
+Wire Wire Line
+	3550 1550 3550 1700
+Wire Wire Line
+	3550 1700 3400 1700
+Wire Wire Line
+	3450 1200 3450 1600
+Wire Wire Line
+	3450 1600 3400 1600
+Wire Wire Line
+	3450 1200 3550 1200
+Wire Wire Line
+	4950 1800 3400 1800
+$Comp
+L power:GND #PWR?
+U 1 1 60490238
+P 600 2700
+F 0 "#PWR?" H 600 2450 50  0001 C CNN
+F 1 "GND" H 605 2527 50  0000 C CNN
+F 2 "" H 600 2700 50  0001 C CNN
+F 3 "" H 600 2700 50  0001 C CNN
+	1    600  2700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	800  2700 700  2700
+Wire Wire Line
+	4050 1900 3400 1900
+Wire Wire Line
+	4050 1400 4050 1900
+Wire Wire Line
+	4200 2200 3400 2200
+Wire Wire Line
+	4200 1400 4200 2200
+Wire Wire Line
+	4350 2000 3400 2000
+Wire Wire Line
+	4500 2100 3400 2100
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60472316
+P 700 2900
+F 0 "#PWR?" H 700 2750 50  0001 C CNN
+F 1 "+3.3V" H 715 3073 50  0000 C CNN
+F 2 "" H 700 2900 50  0001 C CNN
+F 3 "" H 700 2900 50  0001 C CNN
+	1    700  2900
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 60432807
+P 1700 4050
+F 0 "#PWR?" H 1700 3800 50  0001 C CNN
+F 1 "GND" H 1705 3877 50  0000 C CNN
+F 2 "" H 1700 4050 50  0001 C CNN
+F 3 "" H 1700 4050 50  0001 C CNN
+	1    1700 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R1
+U 1 1 60422A0C
+P 1150 3350
+F 0 "R1" V 943 3350 50  0000 C CNN
+F 1 "330Ω" V 1034 3350 50  0000 C CNN
+F 2 "" V 1080 3350 50  0001 C CNN
+F 3 "~" H 1150 3350 50  0001 C CNN
+	1    1150 3350
+	0    1    1    0   
+$EndComp
+$Comp
+L Switch:SW_SPST SW
+U 1 1 60421085
+P 1100 3700
+F 0 "SW" H 1100 3935 50  0000 C CNN
+F 1 "SWITCH" H 1100 3844 50  0000 C CNN
+F 2 "" H 1100 3700 50  0001 C CNN
+F 3 "~" H 1100 3700 50  0001 C CNN
+	1    1100 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:Battery 4.5V
+U 1 1 6041FA04
+P 1500 3700
+F 0 "4.5V" V 1255 3700 50  0000 C CNN
+F 1 "BATTERY" V 1346 3700 50  0000 C CNN
+F 2 "" V 1500 3760 50  0001 C CNN
+F 3 "~" V 1500 3760 50  0001 C CNN
+	1    1500 3700
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:LED D1
+U 1 1 6041A2F0
+P 1550 3350
+F 0 "D1" H 1543 3095 50  0000 C CNN
+F 1 "RED LED" H 1543 3186 50  0000 C CNN
+F 2 "" H 1550 3350 50  0001 C CNN
+F 3 "~" H 1550 3350 50  0001 C CNN
+	1    1550 3350
+	-1   0    0    1   
+$EndComp
+$Comp
+L arduino:Arduino_Nano_Socket XA
+U 1 1 60413F4E
+P 2100 2000
+F 0 "XA" H 2100 3237 60  0000 C CNN
+F 1 "ARDUINO NANO" H 2100 3131 60  0000 C CNN
+F 2 "" H 3900 5750 60  0001 C CNN
+F 3 "https://store.arduino.cc/arduino-nano" H 3900 5750 60  0001 C CNN
+	1    2100 2000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1300 3350 1400 3350
+Wire Wire Line
+	1700 3350 1700 3700
+Wire Wire Line
+	1700 3700 1700 4050
+Connection ~ 1700 3700
+Wire Wire Line
+	900  3700 800  3700
+Wire Wire Line
+	800  3700 800  3350
+Wire Wire Line
+	1000 3350 800  3350
+Connection ~ 800  3350
+Wire Wire Line
+	800  3350 800  2900
+Wire Wire Line
+	700  2700 700  2900
+Wire Wire Line
+	800  2500 600  2500
+Wire Wire Line
+	600  2500 600  2700
+$EndSCHEMATC
