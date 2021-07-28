@@ -13,7 +13,7 @@
  *  This is potentially dangerous, as it will overwrite the UUID of the card and potentially lock the card from further write operations.
  *  However, some systems use the UUID as authentication, or store data in the authentication blocks. So it might be necessary.
 */
-#define full_copy false 
+#define full_copy true 
 
 // Library imports
 #include <SPI.h>
@@ -50,6 +50,7 @@ byte buffer[18];
 byte rfid_data[64][16];
 
 void setup() {
+  Serial.begin(9600);
   SPI.begin();                  // MFRC522 communicates via SPI
   mfrc522.PCD_Init();           
   digitalWrite(BLUE_LED_PIN, LOW);  // Turn off the blue LED.
@@ -58,7 +59,9 @@ void setup() {
 
 void loop() {
   // Read mode. Wait until the RFID reader finds a card.
+  Serial.print("Ready.");
   while(!await_and_copy_card());
+  blink_led(BLUE_LED_PIN, 1000);
   digitalWrite(YELLOW_LED_PIN, LOW);
   digitalWrite(BLUE_LED_PIN, HIGH);
   // Write mode. Wait until the RFID reader finds a new card.
@@ -105,9 +108,11 @@ bool await_and_copy_card(){
     }
     mfrc522.PICC_HaltA();       // Halt PICC
     mfrc522.PCD_StopCrypto1();  // Stop encryption on PCD
+    Serial.print("Copy successful.");
     return true;
   }
   blink_led(YELLOW_LED_PIN, 1000);
+  Serial.print("Copy fail: Could not find key.");
   return false; // Could not find key.
 }
 
@@ -125,13 +130,16 @@ bool await_and_write_card(){
     // Writing to card block-for-block, don't remove it or you might brick it.
     for(int block = 0; block <= 62; block++){ // Write block for block
       if(!full_copy && (block % 4 == 3 || block < 4)){ 
-        block++; // Skips the first block, as well as authentication blocks.
+        continue; // Skips the first block, as well as authentication blocks.
       }
+      Serial.print("Writing block ");
+      Serial.println(block);
 
       // Authenticate A-key
       status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key_a, &(mfrc522.uid));
       if (status != MFRC522::STATUS_OK) {
         // Failed authentication.
+        Serial.print("Failed auth: A");
         blink_led(YELLOW_LED_PIN, 1000);
         return false;
       }
@@ -140,14 +148,24 @@ bool await_and_write_card(){
       status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_B, block, &key_b, &(mfrc522.uid));
       if (status != MFRC522::STATUS_OK) {
         // Failed authentication.
+        Serial.print("Failed auth: B");
         blink_led(YELLOW_LED_PIN, 1000);
         return false;
       }
-
+      Serial.println(block);
       // Write the block
-      status = (MFRC522::StatusCode) mfrc522.MIFARE_Write(block, rfid_data[block], 16);
+      if(block==0){
+        mfrc522.PCD_StopCrypto1(); // We need to deactivate crypto in order to access the backdoor.
+        mfrc522.MIFARE_OpenUidBackdoor(true);
+        status = (MFRC522::StatusCode) mfrc522.MIFARE_Write(block, rfid_data[block], 16);
+      }
+      else{
+        status = (MFRC522::StatusCode) mfrc522.MIFARE_Write(block, rfid_data[block], 16);
+      }
       if (status != MFRC522::STATUS_OK) {
         // Write failed
+        Serial.println("Failed to write.");
+        Serial.println(mfrc522.GetStatusCodeName(status));
         blink_led(YELLOW_LED_PIN, 1000);
         return false;
       }
@@ -196,9 +214,11 @@ bool find_key(MFRC522::MIFARE_Key *key, boolean check_a){
     }
     if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()){
       // Sudden loss of connection to card. Abort.
+      Serial.print("Lost connection while trying to find key.");
       return false;
     }
   }
   // Tried all keys, could not find one that works.
+  Serial.print("Could not find key.");
   return false;
 }
