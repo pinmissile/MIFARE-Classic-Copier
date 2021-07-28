@@ -26,6 +26,10 @@ The [MFRC522](https://github.com/miguelbalboa/rfid) library, available from the 
 
 Snug little thing, I threw it together with a battery pack, some screws, a multipurpose electronics casing and some black bathroom silicon.
 
+## Configuration
+The code has one override variable on row 16: full_copy. 
+Flip this variable to true if you wish to make a carbon copy of a card. In technical terms, it will overwrite the first block, as well as authentication sectors. This will overwrite the UUID of the copy and may block future read/write operations on the card.
+
 ## Usage
 The device has two modes: Read and Write. Upon powering up, the device will enter Read mode. Simply hold the reader up to the card you wish to clone.
 

